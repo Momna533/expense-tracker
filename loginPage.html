@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/login.css" />
+    <title>Login - Expenses Tracker</title>
+  </head>
+  <body>
+    <button class="theme_toggle" id="themeToggle">☀️</button>
+
+    <div class="login_container">
+      <div class="login_header">
+        <h1>Expense Tracker</h1>
+        <p id="formTitle">Welcome Back!</p>
+      </div>
+
+      <div id="errorMsg" class="error_message"></div>
+      <div id="successMsg" class="success_message"></div>
+
+      <!---Login form-->
+
+      <div id="loginForm" class="form_container">
+        <div class="input_group">
+          <label>Username</label>
+          <input
+            type="text"
+            id="loginUsername"
+            placeholder="Enter your username"
+          />
+        </div>
+
+        <div class="input_group">
+          <label>Password</label>
+          <div class="password_wrapper">
+            <input
+              type="password"
+              id="loginPassword"
+              placeholder="Enter your password"
+            />
+            <span class="password_toggle" id="loginPasswordToggle">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </span>
+
+            <div class="caps_lock_warning" id="signupCapsWarning">
+              Caps lock is on
+            </div>
+          </div>
+          <button class="login_btn" id="loginBtn">Login</button>
+          <div class="toggle_form">
+            Don't have an account? <a class="toggleForm">Sign up</a>
+          </div>
+        </div>
+      </div>
+      <!---Signup form-->
+
+      <div id="signupForm" class="form_container signup_form">
+        <div class="input_group">
+          <label>Username</label>
+          <input
+            type="text"
+            id="signupUsername"
+            placeholder="Choose a username"
+          />
+        </div>
+
+        <div class="input_group">
+          <label>Password</label>
+          <div class="password_wrapper">
+            <input
+              type="password"
+              id="signupPassword"
+              placeholder="Choose a password"
+            />
+            <span
+              class="password_toggle signup_password_toggle"
+              id="signupPasswordToggle"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </span>
+
+            <div class="caps_lock_warning" id="signupCapsWarning">
+              Caps lock is on
+            </div>
+            <div class="password_requirements">
+              Password must be at least 4 characters
+            </div>
+          </div>
+        </div>
+
+        <div class="input_group">
+          <label>Confirm Password</label>
+          <div class="password_wrapper">
+            <input
+              type="password"
+              id="confirmPassword"
+              placeholder="Confirm your password"
+            />
+            <span class="password_toggle" id="confirmPasswordToggle">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </span>
+
+            <div class="caps_lock_warning" id="confirmCapsWarning">
+              Caps lock is on
+            </div>
+          </div>
+          <button class="login_btn" id="signupBtn">Sign Up</button>
+          <div class="toggle_form">
+            Already have an account? <a class="toggleForm">Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/loginPage.js"></script>
+  </body>
+</html>
