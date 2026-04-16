@@ -16,27 +16,6 @@ body {
   padding: 20px;
   transition: background 0.3s ease;
 }
-body.dark_mode {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-}
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
 
 .login_container {
   background: white;
@@ -49,11 +28,6 @@ body.dark_mode {
   transition:
     background 0.3s ease,
     box-shadow 0.3s ease;
-}
-
-body.dark_mode .login_container {
-  background: #1e1e2f;
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
 }
 .login_header {
   text-align: center;
@@ -74,9 +48,6 @@ body.dark_mode .login_container {
   font-size: 1.1rem;
 }
 
-body.dark_mode .login_header p {
-  color: #9ca3af;
-}
 .form_container {
   animation: fadeIn 0.5s ease-out;
 }
@@ -93,11 +64,6 @@ body.dark_mode .login_header p {
   color: #333;
   font-size: 15px;
 }
-
-body.dark_mode .input_group label {
-  color: #e0e0e0;
-}
-
 .password_wrapper {
   position: relative;
 }
@@ -118,17 +84,9 @@ body.dark_mode .input_group label {
   top: 35%;
 }
 
-body.dark_mode .password_toggle {
-  color: #9ca3af;
-}
-
 .password_toggle:hover {
   color: #667eea;
   transform: translateY(-50%) scale(1.1);
-}
-
-body.dark_mode .password_toggle:hover {
-  color: #8b9bff;
 }
 
 .password_toggle svg {
@@ -144,15 +102,6 @@ body.dark_mode .password_toggle:hover {
   font-size: 16px;
   transition: all 0.3s ease;
   background: #f8f9fa;
-}
-body.dark_mode .input_group input {
-  background: #2d3748;
-  color: #e0e0e0;
-  border-color: #4a5568;
-}
-
-body.dark_mode .input_group input::placeholder {
-  color: #9ca3af;
 }
 
 .input_group input:focus {
@@ -207,21 +156,13 @@ body.dark_mode .input_group input::placeholder {
 .login_btn:active {
   transform: translateY(-1px);
 }
-
-body.dark_mode .input_group input:focus {
-  background: #374151;
-  border-color: #667eea;
-}
-
 .toggle_form {
   text-align: center;
   margin-top: 20px;
   color: #666;
   font-size: 15px;
 }
-body.dark_mode .toggle_form {
-  color: #9ca3af;
-}
+
 .toggle_form a {
   color: #667eea;
   text-decoration: none;
@@ -229,11 +170,6 @@ body.dark_mode .toggle_form {
   cursor: pointer;
   transition: all 0.3s ease;
 }
-
-body.dark_mode .toggle_form a {
-  color: #8b9bff;
-}
-
 .toggle_form a:hover {
   text-decoration: underline;
   color: #764ba2;
@@ -265,9 +201,6 @@ body.dark_mode .toggle_form a {
   margin-top: 5px;
   display: none;
 }
-body.dark_mode .password_requirements {
-  color: #9ca3af;
-}
 
 #signupForm .password_requirements {
   display: block;
@@ -281,9 +214,6 @@ body.dark_mode .password_requirements {
   font-weight: 500;
 }
 
-body.dark-mode .caps_lock_warning {
-  color: #ffa726;
-}
 .theme_toggle {
   position: fixed;
   bottom: 30px;
@@ -309,6 +239,28 @@ body.dark-mode .caps_lock_warning {
   transform: translateY(-5px) scale(1.1);
   box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
 }
+.signup_form {
+  display: none;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
 @keyframes float {
   0%,
@@ -320,6 +272,50 @@ body.dark-mode .caps_lock_warning {
   }
 }
 
+body.dark_mode {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+body.dark_mode .login_container {
+  background: #1e1e2f;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6);
+}
+body.dark_mode .login_header p {
+  color: #9ca3af;
+}
+body.dark_mode .input_group label {
+  color: #e0e0e0;
+}
+body.dark_mode .password_toggle {
+  color: #9ca3af;
+}
+body.dark_mode .password_toggle:hover {
+  color: #8b9bff;
+}
+body.dark_mode .input_group input {
+  background: #2d3748;
+  color: #e0e0e0;
+  border-color: #4a5568;
+}
+body.dark_mode .input_group input::placeholder {
+  color: #9ca3af;
+}
+
+body.dark_mode .input_group input:focus {
+  background: #374151;
+  border-color: #667eea;
+}
+body.dark_mode .toggle_form {
+  color: #9ca3af;
+}
+body.dark_mode .toggle_form a {
+  color: #8b9bff;
+}
+body.dark_mode .password_requirements {
+  color: #9ca3af;
+}
+body.dark-mode .caps_lock_warning {
+  color: #ffa726;
+}
 body.dark_mode .theme_toggle {
   background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
   box-shadow: 0 8px 25px rgba(255, 216, 155, 0.4);
@@ -327,7 +323,4 @@ body.dark_mode .theme_toggle {
 
 body.dark_mode .theme_toggle:hover {
   box-shadow: 0 12px 35px rgba(255, 216, 155, 0.6);
-}
-.signup_form {
-  display: none;
 }
