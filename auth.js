@@ -36,49 +36,54 @@ function loadTheme() {
 
 // //login and signup buttons
 // const loginBtn = document.getElementById("loginBtn");
-// const signupBtn = document.getElementById("signupBtn");
+const signupBtn = document.getElementById("signupBtn");
 // //signup
-// function handleSignUp() {
-//   const username = document.getElementById("signupUsername").value.trim();
-//   const password = document.getElementById("signupPassword").value;
-//   const confirmPassword = document.getElementById("confirmPassword").value;
+function handleSignUp() {
+  const username = document.getElementById("signupUsername").value.trim();
+  const password = document.getElementById("signupPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
 
-//   if (!username || !password || !confirmPassword) {
-//     showError("Please fill in all fields.");
-//     return;
-//   }
+  if (!username || !password || !confirmPassword) {
+    showError("Please fill in all fields.");
+    return;
+  }
 
-//   if (username.length < 3) {
-//     showError("Username must be at least 3 characters long.");
-//     return;
-//   }
-//   if (password !== confirmPassword) {
-//     showError("Passwords do not match.");
-//     return;
-//   }
+  if (username.length < 3) {
+    showError("Username must be at least 3 characters long.");
+    return;
+  }
+  if (password !== confirmPassword) {
+    showError("Passwords do not match.");
+    return;
+  }
 
-//   if (password.length < 4) {
-//     showError("Password must be at least 4 characters long.");
-//     return;
-//   }
+  if (password.length < 4) {
+    showError("Password must be at least 4 characters long.");
+    return;
+  }
 
-//   const users = JSON.parse(localStorage.getItem("expenseTrackerUsers")) || {};
+  const users = JSON.parse(localStorage.getItem("expenseTrackerUsers")) || {};
 
-//   if (users[username]) {
-//     showError("Username already exists.");
-//     return;
-//   }
+  if (users[username]) {
+    showError("Username already exists.");
+    return;
+  }
 
-//   users[username] = { password: password };
+  users[username] = { password: password };
 
-//   localStorage.setItem("expenseTrackerUsers", JSON.stringify(users));
-//   showSuccess("Sign up successful! You can now log in.");
+  localStorage.setItem("expenseTrackerUsers", JSON.stringify(users));
+  showSuccess("Sign up successful! You can now log in.");
 
-//   setTimeout(() => {
-//     toggleForm();
-//     document.getElementById("loginUsername").value = username;
-//   }, 1500);
-// }
+  setTimeout(() => {
+    toggleForm();
+    document.getElementById("loginUsername").value = username;
+  }, 1500);
+}
+
+signupBtn.addEventListener("click", () => {
+  handleSignUp();
+});
+
 // //login
 // function handleLogin() {
 //   const username = document.getElementById("loginUsername").value.trim();
@@ -112,64 +117,60 @@ function loadTheme() {
 //   handleLogin();
 // });
 
-// signupBtn.addEventListener("click", () => {
-//   handleSignUp();
-// });
-
 // //login form toggling
-// const toggleFormLink = document.querySelectorAll(".toggleForm");
-// function toggleForm() {
-//   const loginForm = document.getElementById("loginForm");
-//   const signupForm = document.getElementById("signupForm");
-//   const formTitle = document.getElementById("formTitle");
+const toggleFormLink = document.querySelectorAll(".toggleForm");
+function toggleForm() {
+  const loginForm = document.getElementById("loginForm");
+  const signupForm = document.getElementById("signupForm");
+  const formTitle = document.getElementById("formTitle");
 
-//   document.getElementById("errorMsg").style.display = "none";
-//   document.getElementById("successMsg").style.display = "none";
+  document.getElementById("errorMsg").style.display = "none";
+  document.getElementById("successMsg").style.display = "none";
 
-//   if (loginForm.style.display === "none") {
-//     loginForm.style.display = "block";
-//     signupForm.style.display = "none";
-//     formTitle.textContent = "Welcome Back!";
-//     clearInputs();
-//   } else {
-//     loginForm.style.display = "none";
-//     signupForm.style.display = "block";
-//     formTitle.textContent = "Create an account";
-//     clearInputs();
-//   }
-// }
+  if (loginForm.style.display === "none") {
+    loginForm.style.display = "block";
+    signupForm.style.display = "none";
+    formTitle.textContent = "Welcome Back!";
+    clearInputs();
+  } else {
+    loginForm.style.display = "none";
+    signupForm.style.display = "block";
+    formTitle.textContent = "Create an account";
+    clearInputs();
+  }
+}
 
-// toggleFormLink.forEach((link) => {
-//   link.addEventListener("click", toggleForm);
-// });
+toggleFormLink.forEach((link) => {
+  link.addEventListener("click", toggleForm);
+});
 
 // //supporting funcs
 
-// function showMessage(elementId, message) {
-//   const msgElement = document.getElementById(elementId);
-//   msgElement.textContent = message;
-//   msgElement.style.display = "block";
-//   setTimeout(() => (msgElement.style.display = "none"), 3000);
-// }
+function showMessage(elementId, message) {
+  const msgElement = document.getElementById(elementId);
+  msgElement.textContent = message;
+  msgElement.style.display = "block";
+  setTimeout(() => (msgElement.style.display = "none"), 3000);
+}
 
-// function showError(message) {
-//   showMessage("errorMsg", message);
-// }
-// function showSuccess(message) {
-//   showMessage("successMsg", message);
-// }
+function showError(message) {
+  showMessage("errorMsg", message);
+}
+function showSuccess(message) {
+  showMessage("successMsg", message);
+}
 
-// function clearInputs() {
-//   document.querySelectorAll("input").forEach((input) => (input.value = ""));
-// }
+function clearInputs() {
+  document.querySelectorAll("input").forEach((input) => (input.value = ""));
+}
 
-// document.addEventListener("keypress", (e) => {
-//   if (e.key === "Enter") {
-//     const isLoginVisible =
-//       document.getElementById("loginForm").style.display !== "none";
-//     isLoginVisible ? handleLogin() : handleSignUp();
-//   }
-// });
+document.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const isLoginVisible =
+      document.getElementById("loginForm").style.display !== "none";
+    isLoginVisible ? handleLogin() : handleSignUp();
+  }
+});
 
 // //inputs
 // const loginPasswordInput = document.getElementById("loginPassword");
@@ -227,12 +228,11 @@ function loadTheme() {
 
 module.exports = {
   toggleTheme,
-  // loadTheme,
-  // handleSignUp,
-  // handleLogin,
-  // toggleForm,
-  // showError,
-  // showSuccess,
-  // showError,
+  loadTheme,
+  handleSignUp,
+  toggleForm,
+  showError,
+  showSuccess,
   // setupPasswordToggle,
+  // handleLogin,
 };
