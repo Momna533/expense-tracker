@@ -1,13 +1,21 @@
+const themeToggle = document.getElementById("themeToggle");
+
 window.addEventListener("DOMContentLoaded", () => {
-  const currentUser = localStorage.getItem("currentUser");
+  const currentUser = localStorage.getItem("currenUser");
   if (currentUser) {
     window.location.href = "index.html";
   }
-  loadTheme();
-});
 
-//theme toggle and load
-const themeToggle = document.getElementById("themeToggle");
+  const savedTheme = localStorage.getItem("theme");
+
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark_mode)");
+    themeToggle.textContent = "🌙";
+  } else {
+    document.body.classList.remove("dark_mode");
+    themeToggle.textContent = "☀️";
+  }
+});
 
 themeToggle.addEventListener("click", toggleTheme);
 
@@ -15,29 +23,18 @@ function toggleTheme() {
   if (document.body.classList.contains("dark_mode")) {
     document.body.classList.remove("dark_mode");
     themeToggle.textContent = "☀️";
-    localStorage.setItem("theme", "light");
-  } else {
-    document.body.classList.add("dark_mode");
-    themeToggle.textContent = "🌙";
     localStorage.setItem("theme", "dark");
-  }
-}
-
-function loadTheme() {
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme === "dark") {
+  } else {
     document.body.classList.add("dark_mode");
     themeToggle.textContent = "🌙";
-  } else {
-    document.body.classList.remove("dark_mode");
-    themeToggle.textContent = "☀️";
+    localStorage.setItem("theme", "light");
   }
 }
 
-//login and signup buttons
+// //login and signup buttons
 const loginBtn = document.getElementById("loginBtn");
 const signupBtn = document.getElementById("signupBtn");
-//signup
+// //signup
 function handleSignUp() {
   const username = document.getElementById("signupUsername").value.trim();
   const password = document.getElementById("signupPassword").value;
@@ -79,7 +76,7 @@ function handleSignUp() {
     document.getElementById("loginUsername").value = username;
   }, 1500);
 }
-//login
+// //login
 function handleLogin() {
   const username = document.getElementById("loginUsername").value.trim();
   const password = document.getElementById("loginPassword").value;
@@ -143,7 +140,7 @@ toggleFormLink.forEach((link) => {
   link.addEventListener("click", toggleForm);
 });
 
-//supporting funcs
+// //supporting funcs
 
 function showMessage(elementId, message) {
   const msgElement = document.getElementById(elementId);
@@ -171,7 +168,7 @@ document.addEventListener("keypress", (e) => {
   }
 });
 
-//inputs
+// //inputs for passwords
 const loginPasswordInput = document.getElementById("loginPassword");
 const signupPasswordInput = document.getElementById("signupPassword");
 const confirmPasswordInput = document.getElementById("confirmPassword");
@@ -188,6 +185,7 @@ const confirmPasswordToggleBtn = document.getElementById(
   "confirmPasswordToggle",
 );
 const confirmPasswordIcon = confirmPasswordToggleBtn.querySelector("svg");
+
 function addCapsWarning(input, warningElement) {
   input.addEventListener("keyup", (e) => {
     warningElement.style.display =
