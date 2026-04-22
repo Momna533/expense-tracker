@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+    <title>Expense Tracker</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <button class="logout_btn" id="logoutBtn">Logout</button>
+        <h1>Expenses Tracker</h1>
+        <p>Manage your expenses with ease</p>
+      </div>
+
+      <button class="theme_toggle" id="themeToggle" type="button">☀️</button>
+
+      <div class="tabs">
+        <button class="tab active" id="addTab" onclick="showTab('add')">
+          Add Expense
+        </button>
+        <button
+          class="tab"
+          id="transactionsTab"
+          onclick="showTab('transactions')"
+        >
+          Transactions
+        </button>
+        <button class="tab" id="analyticsTab" onclick="showTab('analytics')">
+          Analytics
+        </button>
+        <button class="tab" id="budgetTab" onclick="showTab('budget')">
+          Budget Tracker
+        </button>
+        <button
+          class="tab"
+          id="monthlySummaryTab"
+          onclick="showTab('monthlySummary')"
+        >
+          Monthly Summary
+        </button>
+      </div>
+
+      <div id="add" class="content active">
+        <h2>Add new expense</h2>
+        <p>Track your expenses and stay on top of your budget.</p>
+
+        <div class="form_container">
+          <div class="form_group">
+            <label>Expense Name</label>
+            <input
+              type="text"
+              id="expenseName"
+              placeholder="Enter expense name"
+            />
+          </div>
+
+          <div class="form_group">
+            <label>Expense Category</label>
+            <select id="expenseCategory">
+              <option value="">--- Select Category ---</option>
+              <option value="Food">Food</option>
+              <option value="Transportation">Transportation</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Utilities">Utilities</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form_group">
+            <label>Expense Amount</label>
+            <input
+              type="number"
+              id="expenseAmount"
+              placeholder="Enter expense amount"
+            />
+          </div>
+
+          <div class="form_group">
+            <label>Expense Date</label>
+            <input type="date" id="expenseDate" />
+            <div class="date_display" id="dateDisplay"></div>
+          </div>
+
+          <div class="form_group">
+            <label>Expense Description</label>
+            <textarea
+              id="expenseDescription"
+              placeholder="Enter expense description(optional)"
+            ></textarea>
+          </div>
+
+          <button class="btn" id="addExpenseBtn">Add Expense</button>
+        </div>
+      </div>
+
+      <div id="transactions" class="content">
+        <h2>Transactions</h2>
+        <p>View and manage your transactions.</p>
+
+        <button class="pdf_download_btn" id="downloadPDF">📥</button>
+
+        <div class="stats_grid">
+          <div class="stats_card">
+            <h3>Total Expenses</h3>
+            <div class="value"><span id="totalExpense">$0.00</span></div>
+          </div>
+        </div>
+
+        <div class="search_container">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search Expenses by name or desc..."
+          />
+        </div>
+
+        <div class="filter_section">
+          <h3>Filter Transactions</h3>
+          <div class="filter_group">
+            <label
+              >Amount Range: $<span id="minAmount">0.00</span> - $<span
+                id="maxAmount"
+                >0.00</span
+              ></label
+            >
+            <div>
+              <span>$0</span>
+              <input type="range" id="amountSlider" min="0" max="0" />
+              <span id="sliderMax">$0</span>
+            </div>
+          </div>
+          <div class="filter_group">
+            <label>Filter by Month</label>
+            <div class="month_checkboxes" id="monthCheckboxes"></div>
+          </div>
+
+          <button class="btn" id="resetFilters">Reset Filters</button>
+        </div>
+
+        <div class="transaction_list" id="transactionList">
+          <p>No transactions yet. Add some expenses!</p>
+        </div>
+      </div>
+
+      <div id="analytics" class="content">
+        <h2>Analytics</h2>
+        <p>Visualize your spending patterns and gain insights.</p>
+
+        <div class="charts_grid">
+          <div>
+            <h3>Category Distribution</h3>
+            <div class="chart_container">
+              <canvas id="pieChart"></canvas>
+            </div>
+          </div>
+          <div>
+            <h3>Monthly Trends</h3>
+            <div class="chart_container">
+              <canvas id="lineChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3>Category Comparison</h3>
+          <div class="chart_container">
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div id="budget" class="content">
+        <h2>Budget Tracker</h2>
+        <p>Set and track your budget to manage your finances effectively.</p>
+
+        <div>
+          <div class="form_group">
+            <label>Set Monthly Budget</label>
+            <input
+              type="number"
+              id="monthlyBudget"
+              placeholder="Enter monthly budget"
+            />
+          </div>
+          <div id="budgetDisplay"></div>
+        </div>
+      </div>
+
+      <div id="monthlySummary" class="content">
+        <h2>Monthly Summary</h2>
+        <p>Get a summary of your monthly expenses and financial health.</p>
+
+        <div class="stats_grid">
+          <div class="stats_card">
+            <h3>Total Expenses</h3>
+            <div class="value">$<span id="monthlyTotal">0.00</span></div>
+          </div>
+
+          <div class="stats_card">
+            <h3>Transactions</h3>
+            <div class="value"><span id="monthlyCount">0</span></div>
+          </div>
+
+          <div class="stats_card">
+            <h3>Average per year</h3>
+            <div class="value">$<span id="dailyAverage">0.00</span></div>
+          </div>
+        </div>
+
+        <div class="category_breakdown" id="categoryBreakdown">
+          <h3>Category Breakdown</h3>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
