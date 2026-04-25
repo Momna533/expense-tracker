@@ -4,6 +4,7 @@
 let expenses = [];
 let maxFilterAmount = 0;
 let enteredBudget = 0;
+let selectedMonths = [];
 
 //on dom content load
 //set max date on the expenses date div to today
@@ -15,11 +16,17 @@ let enteredBudget = 0;
 window.addEventListener("DOMContentLoaded", () => {
   const today = new Date().toISOString().split("T")[0];
   document.getElementById("expenseDate").setAttribute("max", today);
+  initializeMonthCheckboxes();
   loadTheme();
   loadExpenses();
   updateTransactions();
-  // updateFilters();
+  updateFilters();
   // updateBudget();
+
+  const slider = document.getElementById("amountSlider");
+  if (slider) {
+    slider.addEventListener("input", applyFilters);
+  }
 });
 
 const currentUser = localStorage.getItem("currentUser");
@@ -171,8 +178,8 @@ function loadExpenses() {
 
 //transactions tab
 
-//show total expenses in transactions tab
-//show expenses by each expense in details
+//show total expenses in transactions tab in start card
+//show expenses by each expense in details in bottom list in transactions tab
 
 const categoryColors = {
   Food: "#FF6384",
@@ -195,15 +202,16 @@ const categoryIcons = {
   Education: "📚",
   Other: "📦",
 };
-function updateTransactions() {
-  const expensesList = document.getElementById("transactionList");
-  const totalExpenses = expenses.reduce(
-    (sum, expense) => sum + expense.amount,
-    0,
-  );
 
-  document.getElementById("totalExpense").textContent =
-    Math.round(totalExpenses * 100) / 100;
+function updateTransactions() {
+  const totalExpensesDiv = document.getElementById("totalExpense");
+  const totalExpensesList = document.getElementById("transactionList");
+
+  const totalExpenses = expenses.reduce((sum, expense) => {
+    return sum + expense.amount;
+  }, 0);
+
+  totalExpensesDiv.textContent = "$" + totalExpenses.toFixed(2);
 
   if (expenses.length === 0) {
     expensesList.innerHTML =
@@ -211,13 +219,11 @@ function updateTransactions() {
     return;
   }
 
-  const sortedExpenses = [...expenses].sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    return dateB - dateA;
-  });
+  const sortedExpenses = [...expenses].sort(
+    (a, b) => new Date(b) - new Date(a),
+  );
 
-  expensesList.innerHTML = sortedExpenses
+  totalExpensesList.innerHTML = sortedExpenses
     .map((expense) => {
       return `
   <div class="transaction_item">
@@ -241,6 +247,7 @@ function updateTransactions() {
   `;
     })
     .join();
+  console.log(totalExpenses);
 }
 
 //delete expense in transactions list
@@ -306,6 +313,39 @@ function downloadPDF() {
       return dateB - dateA;
     });
 
+    let yPos = 80;
+    doc.setFontSize(9);
+
+    sortedExpenses.forEach((expense, index) => {
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setTextColor(102, 126, 234);
+      doc.text(index + 1 + "." + expense.name, 20, yPos);
+
+      doc.setTextColor(0, 0, 0);
+      yPos += 5;
+      doc.text(
+        " Category: " +
+          categoryIcons[expense.category] +
+          " " +
+          expense.category,
+        20,
+        yPos,
+      );
+
+      yPos += 5;
+      doc.text(" Amount: Rs. " + expense.amount.toFixed(2), 20, yPos);
+
+      yPos += 5;
+      doc.text("   Date: " + expense.displayDate, 20, yPos);
+      yPos += 5;
+      doc.text("   Description: " + (expense.description || "N/A"), 20, yPos);
+      yPos += 8;
+    });
+
     //saving doc as pdf
     doc.save(
       "Expense_Report_" + new Date().toISOString().split("T")[0] + ".pdf",
@@ -318,7 +358,46 @@ function downloadPDF() {
 }
 
 function downloadAsText() {
-  console.log("downlaoding as text");
+  let reportContent = "=== EXPENSE TRACKER REPORT ===\n\n";
+  reportContent += "Generated: " + new Date().toLocaleString() + "\n\n";
+  reportContent += "SUMMARY\n";
+  reportContent += "------------------------\n";
+  reportContent +=
+    "Total Expenses: Rs." +
+    expenses.reduce((sum, expense) => sum + expense.amount, 0).toFixed(2) +
+    "\n";
+  reportContent += "Total Transactions: " + expenses.length + "\n\n";
+  reportContent += "TRANSACTIONS\n";
+  reportContent += "------------------------\n\n";
+
+  const sortedExpenses = [...expenses].sort(
+    (a, b) => new Date(b.date) - new Date(a.date),
+  );
+
+  sortedExpenses.forEach((expense) => {
+    reportContent += "Name: " + expense.name + "\n";
+    reportContent +=
+      "Category: " +
+      categoryIcons[expense.category] +
+      " " +
+      expense.category +
+      "\n";
+    reportContent += "Amount: Rs." + expense.amount.toFixed(2) + "\n";
+    reportContent += "Date: " + expense.displayDate + "\n";
+    reportContent += "Description: " + expense.description + "\n";
+    reportContent += "------------------------\n";
+  });
+
+  const blob = new Blob([reportContent], { type: "text/plain" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download =
+    "Expense_Report_" + new Date().toISOString().split("T")[0] + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
 }
 //search expenses
 
@@ -341,21 +420,109 @@ function searchExpenses() {
     );
   });
 
-  const transactionList = document.getElementById("transactionList");
+  displayFilteredTransactions(filteredExpenses);
+}
+
+//show expenses in filter range input
+
+function updateFilters() {
+  if (expenses.length === 0) {
+    document.getElementById("maxAmount").textContent = "0";
+    document.getElementById("amountSlider").max = 0;
+    document.getElementById("sliderMax").textContent = "Rs.0";
+
+    maxFilterAmount = 0;
+    return;
+  }
+
+  const maxExpense = Math.max(...expenses.map((expense) => expense.amount));
+  const roundedMax = Math.ceil(maxExpense / 10000) * 10000;
+  maxFilterAmount = roundedMax || 10000;
+
+  document.getElementById("maxAmount").textContent = roundedMax;
+  document.getElementById("amountSlider").max = roundedMax;
+  document.getElementById("amountSlider").value = roundedMax;
+  document.getElementById("sliderMax").textContent = "Rs. " + roundedMax;
+}
+
+//filter transactions by range input
+//filter transactions by month
+
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+function initializeMonthCheckboxes() {
+  const container = document.getElementById("monthCheckboxes");
+  let html = "";
+  monthNames.forEach((month, index) => {
+
+    html += `
+    <div class="month_checkbox_item">
+      <input 
+        type="checkbox" 
+        id="month${index}"
+        value= "${index}"
+        onchange="applyFilters()"
+        >
+      <label for="month${index}">
+        ${month}
+      </label>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function applyFilters() {
+  const maxAmount = parseFloat(document.getElementById("amountSlider").value);
+  document.getElementById("maxAmount").textContent = maxAmount.toFixed();
+
+  selectedMonths = [];
+  monthNames.forEach((month, index) => {
+    const checkbox = document.getElementById("month" + index);
+    if (checkbox && checkbox.checked) {
+      selectedMonths.push(index);
+    }
+  });
+
+  let filteredExpenses = expenses.filter(
+    (expense) => expense.amount <= maxAmount,
+  );
+
+  if (selectedMonths.length > 0) {
+    filteredExpenses = filteredExpenses.filter((expense) => {
+      const expesneDate = new Date(expense.date);
+      return selectedMonths.includes(expesneDate.getMonth());
+    });
+  }
+  displayFilteredTransactions(filteredExpenses);
+}
+function displayFilteredTransactions(filteredExpenses) {
+  const expensesList = document.getElementById("transactionList");
 
   if (filteredExpenses.length === 0) {
-    transactionList.innerHTML =
+    expensesList.innerHTML =
       '<p style="text-align: center; color: #666; padding: 40px;">No transactions match the selected filters.</p>';
     return;
   }
 
-  const sortedExpenses = [...filteredExpenses].sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    return dateB - dateA;
-  });
+  const sortedExpenses = [...filteredExpenses].sort(
+    (a, b) => new Date(b.date) - new Date(a.date),
+  );
 
-  transactionList.innerHTML = sortedExpenses
+  expensesList.innerHTML = sortedExpenses
     .map((expense) => {
       return `
   <div class="transaction_item">
@@ -381,31 +548,21 @@ function searchExpenses() {
     .join();
 }
 
-//show expenses in filter range input
-
-function updateFilters() {
-  if (expenses.length === 0) {
-    document.getElementById("amountSlider").max = 0;
-    document.getElementById("sliderMax").textContent = "Rs.0";
-    document.getElementById("maxAmount").textContent = "0";
-
-    maxFilterAmount = 0;
-    return;
-  }
-
-  const maxExpense = Math.max(...expenses.map((expense) => expense.amount));
-  const roundedMax = Math.ceil(maxExpense / 10000) * 10000;
-  maxFilterAmount = roundedMax || 10000;
-
-  document.getElementById("amountSlider").max = roundedMax;
-  document.getElementById("amountSlider").value = roundedMax;
-  document.getElementById("sliderMax").textContent = "Rs. " + roundedMax;
-  document.getElementById("maxAmount").textContent = roundedMax;
-}
-
-//filter transactions by range input
-//filter transactions by month
 //reset filters
+
+document.getElementById("resetFilters").addEventListener("click", resetFilters);
+function resetFilters() {
+  document.getElementById("amountSlider").value = maxFilterAmount;
+  document.getElementById("maxAmount").textContent = maxFilterAmount.toFixed(0);
+
+  monthNames.forEach((month, index) => {
+    const checkbox = document.getElementById("month" + index);
+    if (checkbox) checkbox.checked = false;
+  });
+
+  selectedMonths = [];
+  updateTransactions();
+}
 
 function updateBudget() {
   enteredBudget =
