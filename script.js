@@ -1,6 +1,6 @@
 //analytics tab
 // budget tabs
-//summary tab
+
 let expenses = [];
 let maxFilterAmount = 0;
 let enteredBudget = 0;
@@ -83,8 +83,8 @@ function showTab(tabName) {
 
   if (tabName === "analytics") {
     console.log("Analytics data loaded");
-  } else if (tabName === "summary") {
-    console.log("Summary data loaded");
+  } else if (tabName === "monthlySummary") {
+    updateMonthlySummary();
   }
 }
 
@@ -247,7 +247,6 @@ function updateTransactions() {
   `;
     })
     .join();
-  console.log(totalExpenses);
 }
 
 //delete expense in transactions list
@@ -467,7 +466,6 @@ function initializeMonthCheckboxes() {
   const container = document.getElementById("monthCheckboxes");
   let html = "";
   monthNames.forEach((month, index) => {
-
     html += `
     <div class="month_checkbox_item">
       <input 
@@ -620,4 +618,98 @@ function updateBudget() {
 `;
 
   console.log("Budget updated with", expenses.length, "expenses");
+}
+
+//summary tab
+
+//run this func in showtabs if tabname is summary
+function updateMonthlySummary() {
+  const now = new Date();
+
+  //current month and year
+  const currentMonthName = now.toLocaleString("default", {
+    month: "long",
+    year: "numeric",
+  });
+  document.getElementById("currentMonth").textContent = currentMonthName;
+
+  //show sum of total expenses for current month
+  const currentMonthExpenses = expenses.filter((expense) => {
+    const expenseDate = new Date(expense.date);
+    return (
+      expenseDate.getMonth() === now.getMonth() &&
+      expenseDate.getFullYear() === now.getFullYear()
+    );
+  });
+
+  //calculate monthly total
+  const monthlyTotal = currentMonthExpenses.reduce(
+    (sum, expense) => sum + expense.amount,
+    0,
+  );
+
+  //show average expenses per day
+
+  const dailyAvg =
+    currentMonthExpenses.length > 0 ? monthlyTotal / now.getDate() : 0;
+
+  //show monthly total
+  document.getElementById("monthlyTotal").textContent = (
+    Math.round(monthlyTotal * 100) / 100
+  ).toFixed(2);
+  //show total number of transactions
+  document.getElementById("monthlyCount").textContent =
+    currentMonthExpenses.length;
+  //show daily average
+  document.getElementById("dailyAverage").textContent = (
+    Math.round(dailyAvg * 100) / 100
+  ).toFixed(2);
+
+  //category breakdown
+  //showing each category, total amount spent on that category and percentage of it out of total expenses
+  //and a bar showing that percentage with fill
+  const categories = [
+    "Food",
+    "Transport",
+    "Shopping",
+    "Bills",
+    "Entertainment",
+    "Health",
+    "Education",
+    "Other",
+  ];
+
+  const breakdownContainer = document.getElementById("categoryBreakdown");
+  let breakdownHTML = "";
+  let hasCategoryData = false;
+
+  categories.forEach((category) => {
+    const categoryTotal = currentMonthExpenses
+      .filter((expense) => expense.category === category)
+      .reduce((sum, expense) => sum + expense.amount, 0);
+
+    if (categoryTotal > 0) {
+      hasCategoryData = true;
+      const percentage =
+        monthlyTotal > 0 ? (categoryTotal / monthlyTotal) * 100 : 0;
+      breakdownHTML += `
+  <div class="category_item">
+    <div class="category_header">
+      <span>${categoryIcons[category]} ${category}</span>
+      <span>Rs.${(Math.round(categoryTotal * 100) / 100).toFixed(2)} (${percentage.toFixed(1)}%)</span>
+    </div>
+    <div class="category_bar">
+      <div class="category_bar_fill" 
+           style="width: ${percentage}%; background: ${categoryColors[category]}"></div>
+    </div>
+  </div>
+`;
+    }
+  });
+
+  if (!hasCategoryData) {
+    breakdownHTML +=
+      '<p style="text-align: center; color: #666; padding: 20px;">No expenses this month yet.</p>';
+  }
+  breakdownContainer.innerHTML = breakdownHTML;
 }
