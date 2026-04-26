@@ -1,10 +1,9 @@
-//analytics tab
-// budget tabs
-
 let expenses = [];
 let maxFilterAmount = 0;
 let enteredBudget = 0;
 let selectedMonths = [];
+
+let pieChart, lineChart, barChart;
 
 //on dom content load
 //set max date on the expenses date div to today
@@ -21,7 +20,8 @@ window.addEventListener("DOMContentLoaded", () => {
   loadExpenses();
   updateTransactions();
   updateFilters();
-  // updateBudget();
+  loadBudget();
+  updateBudget();
 
   const slider = document.getElementById("amountSlider");
   if (slider) {
@@ -82,7 +82,7 @@ function showTab(tabName) {
   });
 
   if (tabName === "analytics") {
-    console.log("Analytics data loaded");
+    setTimeout(() => updateCharts(), 100);
   } else if (tabName === "monthlySummary") {
     updateMonthlySummary();
   }
@@ -184,22 +184,20 @@ function loadExpenses() {
 const categoryColors = {
   Food: "#FF6384",
   Transport: "#36A2EB",
-  Shopping: "#FFCE56",
-  Bills: "#4BC0C0",
-  Entertainment: "#9966FF",
-  Health: "#FF9F40",
-  Education: "#FF6384",
+  Entertainment: "#FFCE56",
+  Utilities: "#4BC0C0",
+  Healthcare: "#9966FF",
+  Shopping: "#FF9F40",
   Other: "#C9CBCF",
 };
 
 const categoryIcons = {
   Food: "🍔",
   Transport: "🚗",
-  Shopping: "🛍️",
-  Bills: "💡",
   Entertainment: "🎮",
-  Health: "🏥",
-  Education: "📚",
+  Utilities: "💡",
+  Shopping: "🛍️",
+  Healthcare: "🏥",
   Other: "📦",
 };
 
@@ -214,13 +212,13 @@ function updateTransactions() {
   totalExpensesDiv.textContent = "$" + totalExpenses.toFixed(2);
 
   if (expenses.length === 0) {
-    expensesList.innerHTML =
+    totalExpensesList.innerHTML =
       '<p style="text-align: center; color: #666; padding: 40px;">No transactions yet. Add your first expense!</p>';
     return;
   }
 
   const sortedExpenses = [...expenses].sort(
-    (a, b) => new Date(b) - new Date(a),
+    (a, b) => new Date(b.date) - new Date(a.date),
   );
 
   totalExpensesList.innerHTML = sortedExpenses
@@ -264,6 +262,7 @@ function deleteExpense(id) {
     updateTransactions();
     updateBudget();
     updateFilters();
+    updateCharts();
   }
 }
 //downlaod pdf report for expenses
@@ -562,17 +561,214 @@ function resetFilters() {
   updateTransactions();
 }
 
+//analytics tab
+
+function updateCharts() {
+  const categories = [
+    "Food",
+    "Transport",
+    "Entertainment",
+    "Utilities",
+    "Healthcare",
+    "Shopping",
+    "Other",
+  ];
+  const categoriesData = categories
+    .map((category) => ({
+      name: category,
+      value: expenses
+        .filter((expense) => expense.category === category)
+        .reduce((sum, expense) => sum + expense.amount, 0),
+    }))
+    .filter((item) => item.value > 0);
+
+  const pieCtx = document.getElementById("pieChart");
+  if (pieCtx) {
+    const ctx = pieCtx.getContext("2d");
+    if (pieChart) pieChart.destroy();
+    pieChart = new Chart(ctx, {
+      type: "pie",
+      data: {
+        labels: categoriesData.map((d) => d.name),
+        datasets: [
+          {
+            data: categoriesData.map((d) => d.value),
+            backgroundColor: categoriesData.map((d) => categoryColors[d.name]),
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "bottom",
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return context.label + ": Rs." + context.parsed.toFixed(2);
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  const monthlyData = {};
+  expenses.forEach((expense) => {
+    const expenseDate = new Date(expense.date);
+    const monthYear = expenseDate.toLocaleString("default", {
+      month: "short",
+      year: "numeric",
+    });
+
+    const sortKey =
+      expenseDate.getFullYear() +
+      "-" +
+      String(expenseDate.getMonth() + 1).padStart(2, "0");
+
+    if (!monthlyData[sortKey]) {
+      monthlyData[sortKey] = {
+        label: monthYear,
+        amount: 0,
+      };
+    }
+
+    monthlyData[sortKey].amount += expense.amount;
+  });
+
+  const sortedMonthlyData = Object.keys(monthlyData)
+    .sort()
+    .map((key) => ({
+      month: monthlyData[key].label,
+      amount: monthlyData[key].amount,
+    }));
+
+  const lineCtx = document.getElementById("lineChart");
+  if (lineCtx) {
+    const ctx = lineCtx.getContext("2d");
+    if (lineChart) lineChart.destroy();
+    lineChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: sortedMonthlyData.map((d) => d.month),
+        datasets: [
+          {
+            label: "Monthly Expenses (Rs.)",
+            data: sortedMonthlyData.map((d) => d.amount),
+            borderColor: "#667eea",
+            backgroundColor: "rgba(102, 126, 234, 0.1)",
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: "#667eea",
+            pointBorderColor: "#fff",
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return "Expenses: Rs." + context.parsed.y.toFixed(2);
+              },
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function (value) {
+                return "Rs." + value.toFixed(0);
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  const barCtx = document.getElementById("barChart");
+  if (barCtx) {
+    const ctx = barCtx.getContext("2d");
+    if (barChart) barChart.destroy();
+    barChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: categoriesData.map((d) => d.name),
+        datasets: [
+          {
+            label: "Amount (Rs.)",
+            data: categoriesData.map((d) => d.value),
+            backgroundColor: categoriesData.map((d) => categoryColors[d.name]),
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return context.label + ": Rs." + context.parsed.y.toFixed(2);
+              },
+            },
+          },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function (value) {
+                return "Rs." + value.toFixed(0);
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+}
+
+// budget tabs
+
+//when window loads update budget func runs
+
+document
+  .getElementById("monthlyBudget")
+  .addEventListener("change", updateBudget);
 function updateBudget() {
+  console.log("updated");
   enteredBudget =
     parseFloat(document.getElementById("monthlyBudget").value) || 0;
+
+  //update budget func saves budget to local storage
+
+  saveBudget();
   const totalExpenses = expenses.reduce(
     (sum, expense) => sum + expense.amount,
     0,
   );
-
   const remaining = enteredBudget - totalExpenses;
   const percentage =
     enteredBudget > 0 ? (totalExpenses / enteredBudget) * 100 : 0;
+
+  //inside budgetdisplay div show total expenses used, remaining onces and the percentage
 
   const display = document.getElementById("budgetDisplay");
 
@@ -580,9 +776,12 @@ function updateBudget() {
     display.innerHTML = "";
     return;
   }
+
   let progressColor = "#4CAF50";
   if (percentage > 100) progressColor = "#f44336";
   else if (percentage > 80) progressColor = "#FFC107";
+
+  //show warning only if the budget is less and expenses are more
 
   let warningHtml = "";
   if (totalExpenses > enteredBudget) {
@@ -616,8 +815,25 @@ function updateBudget() {
     ${warningHtml}
   </div>
 `;
+}
 
-  console.log("Budget updated with", expenses.length, "expenses");
+function saveBudget() {
+  if (currentUser) {
+    localStorage.setItem(
+      "budget_" + currentUser,
+      JSON.stringify(enteredBudget),
+    );
+  }
+}
+//load budget everytime window runs
+
+function loadBudget() {
+  if (currentUser) {
+    const savedBudget = localStorage.getItem("budget_" + currentUser);
+    if (savedBudget) enteredBudget = JSON.parse(savedBudget);
+    document.getElementById("monthlyBudget").value =
+      enteredBudget > 0 ? enteredBudget : "";
+  }
 }
 
 //summary tab
@@ -671,11 +887,10 @@ function updateMonthlySummary() {
   const categories = [
     "Food",
     "Transport",
-    "Shopping",
-    "Bills",
     "Entertainment",
-    "Health",
-    "Education",
+    "Utilities",
+    "Healthcare",
+    "Shopping",
     "Other",
   ];
 
@@ -683,11 +898,13 @@ function updateMonthlySummary() {
   let breakdownHTML = "";
   let hasCategoryData = false;
 
+  console.log(currentMonthExpenses);
   categories.forEach((category) => {
     const categoryTotal = currentMonthExpenses
       .filter((expense) => expense.category === category)
       .reduce((sum, expense) => sum + expense.amount, 0);
 
+    console.log(categoryTotal);
     if (categoryTotal > 0) {
       hasCategoryData = true;
       const percentage =

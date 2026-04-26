@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="/style.css" />
     <title>Expense Tracker</title>
@@ -43,7 +44,7 @@
         </button>
       </div>
 
-      <div id="add" class="content">
+      <div id="add" class="content active">
         <h2>Add new expense</h2>
         <p>Track your expenses and stay on top of your budget.</p>
 
@@ -191,7 +192,7 @@
         </div>
       </div>
 
-      <div id="monthlySummary" class="content active">
+      <div id="monthlySummary" class="content">
         <h2>Monthly Summary <span id="currentMonth"></span></h2>
         <p>Get a summary of your monthly expenses and financial health.</p>
 
